@@ -56,8 +56,8 @@ def parse_log(log_path: Path) -> pd.DataFrame:
 def plot_curves(df: pd.DataFrame, output_dir: Path) -> None:
     # 1) Loss curves
     plt.figure(figsize=(8, 5))
-    plt.plot(df['epoch'], df['train_loss'], marker='', label='Train Loss')
-    plt.plot(df['epoch'], df['val_loss'], marker='', label='Val Loss')
+    plt.plot(df['epoch'], df['train_loss'], marker='o', label='Train Loss')
+    plt.plot(df['epoch'], df['val_loss'], marker='o', label='Val Loss')
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
     plt.title('Training/Validation Loss')
@@ -69,7 +69,7 @@ def plot_curves(df: pd.DataFrame, output_dir: Path) -> None:
 
     # 2) Val accuracy curve
     plt.figure(figsize=(8, 5))
-    plt.plot(df['epoch'], df['val_acc'], marker='', color='tab:green', label='Val Acc (%)')
+    plt.plot(df['epoch'], df['val_acc'], marker='o', color='tab:green', label='Val Acc (%)')
     plt.xlabel('Epoch')
     plt.ylabel('Accuracy (%)')
     plt.title('Validation Accuracy')
@@ -81,14 +81,14 @@ def plot_curves(df: pd.DataFrame, output_dir: Path) -> None:
 
     # 3) Combined (dual-axis)
     fig, ax1 = plt.subplots(figsize=(8, 5))
-    ax1.plot(df['epoch'], df['train_loss'], marker='', label='Train Loss', color='tab:blue')
-    ax1.plot(df['epoch'], df['val_loss'], marker='', label='Val Loss', color='tab:orange')
+    ax1.plot(df['epoch'], df['train_loss'], marker='o', label='Train Loss', color='tab:blue')
+    ax1.plot(df['epoch'], df['val_loss'], marker='o', label='Val Loss', color='tab:orange')
     ax1.set_xlabel('Epoch')
     ax1.set_ylabel('Loss')
     ax1.grid(True, alpha=0.3)
 
     ax2 = ax1.twinx()
-    ax2.plot(df['epoch'], df['val_acc'], marker='', label='Val Acc (%)', color='tab:green')
+    ax2.plot(df['epoch'], df['val_acc'], marker='o', label='Val Acc (%)', color='tab:green')
     ax2.set_ylabel('Val Acc (%)')
 
     lines_1, labels_1 = ax1.get_legend_handles_labels()

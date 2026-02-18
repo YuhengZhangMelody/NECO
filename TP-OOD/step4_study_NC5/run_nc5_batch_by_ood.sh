@@ -7,7 +7,7 @@ set -euo pipefail
 # Example:
 #   bash TP-OOD/step4_study_NC5/run_nc5_batch_by_ood.sh s0,s1,s2 10,20,30,40,50,60,70,80,90,100 cuda 8 128
 
-SEED_DIRS="${1:-}"
+SEED_DIRS="${1:-s0,s1,s2}"
 EPOCHS="${2:-10,20,30,40,50,60,70,80,90,100}"
 DEVICE="${3:-cuda}"
 NUM_WORKERS="${4:-8}"
