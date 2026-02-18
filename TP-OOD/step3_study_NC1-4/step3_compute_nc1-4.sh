@@ -15,7 +15,7 @@ set -euo pipefail
 #   bash TP-OOD/step3_study_NC1-4/step3_compute_nc1-4.sh s0,s1,s2 20,40,60,80,100 cuda 8 128
 
 SEED_DIRS="${1:-}"
-EPOCHS="${2:-20,40,60,80,100}"
+EPOCHS="${2:-10, 20, 30, 40, 50, 60, 70, 80, 90, 100}"
 DEVICE="${3:-cuda}"
 NUM_WORKERS="${4:-8}"
 BATCH_SIZE="${5:-128}"
