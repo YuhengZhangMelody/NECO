@@ -98,12 +98,16 @@ def main():
         df = df[df['seed_dir'].astype(str).isin(keep_seeds)].copy()
 
     # Keep only numeric epochs (exclude "best" by default for curve plotting).
-    df = df[df['epoch'].astype(str).str.match(r'^\\d+$')].copy()
+    # Use robust numeric parsing instead of regex to avoid escaping issues.
+    df = df[pd.to_numeric(df['epoch'], errors='coerce').notna()].copy()
+    df['epoch_num'] = pd.to_numeric(df['epoch_num'], errors='coerce')
+    df = df[df['epoch_num'].notna()].copy()
+    df['epoch_num'] = df['epoch_num'].astype(int)
 
     # Optional epoch filtering.
     if args.epochs.strip():
         keep_epochs = {int(x.strip()) for x in args.epochs.split(',') if x.strip()}
-        df = df[df['epoch_num'].astype(int).isin(keep_epochs)].copy()
+        df = df[df['epoch_num'].isin(keep_epochs)].copy()
 
     if len(df) == 0:
         raise ValueError('No rows left after filtering. Check status/seed/epoch filters.')
