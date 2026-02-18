@@ -1,0 +1,91 @@
+------------------ Config --------------------------
+dataset:
+    image_size: 32
+    interpolation: bilinear
+    name: cifar100
+    normalization_type: cifar100
+    num_classes: 100
+    num_gpus: 1
+    num_machines: 1
+    num_workers: 8
+    pre_size: 32
+    split_names: ['train', 'val', 'test']
+    test:
+        batch_size: 200
+        data_dir: ./data/images_classic/
+        dataset_class: ImglistDataset
+        imglist_pth: ./data/benchmark_imglist/cifar100/test_cifar100.txt
+        shuffle: False
+    train:
+        batch_size: 128
+        data_dir: ./data/images_classic/
+        dataset_class: ImglistDataset
+        imglist_pth: ./data/benchmark_imglist/cifar100/train_cifar100.txt
+        shuffle: True
+    val:
+        batch_size: 200
+        data_dir: ./data/images_classic/
+        dataset_class: ImglistDataset
+        imglist_pth: ./data/benchmark_imglist/cifar100/val_cifar100.txt
+        shuffle: False
+evaluator:
+    name: base
+exp_name: cifar100_resnet18_32x32_base_e100_lr0.1_default/s0
+machine_rank: 0
+mark: default
+merge_option: merge
+network:
+    checkpoint: ./results/cifar10_double_label_resnet18_32x32_mos_e100_lr0.003/best.ckpt
+    name: resnet18_32x32
+    num_classes: 100
+    num_gpus: 1
+    pretrained: False
+num_gpus: 1
+num_machines: 1
+num_workers: 8
+optimizer:
+    lr: 0.1
+    momentum: 0.9
+    name: sgd
+    num_epochs: 100
+    weight_decay: 0.0005
+output_dir: ./results/cifar100_resnet18_32x32_base_e100_lr0.1_default/s0
+pipeline:
+    name: train
+preprocessor:
+    name: base
+recorder:
+    name: base
+    save_all_models: False
+save_output: True
+seed: 0
+trainer:
+    name: base
+──────────────────────────────────────────────────────────────────────
+Output dir: ./results/cifar100_resnet18_32x32_base_e100_lr0.1_default/s0
+Output directory path: ./results/cifar100_resnet18_32x32_base_e100_lr0.1_default/s0
+Start training...
+
+Epoch 001 | Time    10s | Train Loss 3.4033 | Val Loss 3.447 | Val Acc 16.10
+
+Epoch 002 | Time    19s | Train Loss 2.7938 | Val Loss 2.847 | Val Acc 28.50
+
+Epoch 003 | Time    27s | Train Loss 2.3700 | Val Loss 2.318 | Val Acc 37.40
+
+Epoch 004 | Time    35s | Train Loss 2.0175 | Val Loss 2.237 | Val Acc 40.80
+
+Epoch 005 | Time    43s | Train Loss 1.8578 | Val Loss 2.157 | Val Acc 44.90
+
+Epoch 006 | Time    51s | Train Loss 1.6357 | Val Loss 1.702 | Val Acc 52.70
+
+Epoch 007 | Time    59s | Train Loss 1.7017 | Val Loss 1.874 | Val Acc 50.10
+
+Epoch 008 | Time    68s | Train Loss 1.6039 | Val Loss 1.767 | Val Acc 51.80
+
+Epoch 009 | Time    76s | Train Loss 1.4615 | Val Loss 1.690 | Val Acc 52.60
+
+Epoch 010 | Time    84s | Train Loss 1.4561 | Val Loss 1.680 | Val Acc 54.60
+
+Epoch 011 | Time    91s | Train Loss 1.4277 | Val Loss 1.942 | Val Acc 50.80
+
+Epoch 012 | Time    99s | Train Loss 1.3166 | Val Loss 1.784 | Val Acc 52.10
