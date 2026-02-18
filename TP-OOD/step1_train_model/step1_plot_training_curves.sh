@@ -18,7 +18,7 @@ PROJECT_ROOT="$(cd -- "${SCRIPT_DIR}/../.." && pwd)"
 cd "${PROJECT_ROOT}"
 export PYTHONPATH="${PROJECT_ROOT}:${PYTHONPATH:-}"
 
-python TP-OOD/step2_eval_model/plot_training_curves.py \
+python TP-OOD/step1_eval_model/plot_training_curves.py \
   --log-path "${LOG_PATH}" \
   --output-dir "${OUTPUT_DIR}"
 

@@ -98,6 +98,9 @@ def build_loaders(num_workers: int, batch_size: int):
         ROOT_DIR / 'configs/preprocessors/base_preprocessor.yml',
         ROOT_DIR / 'configs/networks/resnet18_32x32.yml',
         ROOT_DIR / 'configs/pipelines/test/test_ood.yml',
+        # Needed because test_ood.yml references @{postprocessor.name} in exp_name.
+        # Postprocessor itself is not used for NC5 computation.
+        ROOT_DIR / 'configs/postprocessors/msp.yml',
     ]
     config = parse_config([Config(str(p)) for p in cfg_files])
     config.num_gpus = 0
