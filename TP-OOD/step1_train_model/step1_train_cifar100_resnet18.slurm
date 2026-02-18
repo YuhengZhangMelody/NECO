@@ -26,5 +26,5 @@ SAVE_INTERVAL=${SAVE_INTERVAL:-10}
 
 cd '/home/ensta/ensta-yuheng.zhang/NECO'
 
-bash TP-OOD/step1_train_cifar100_resnet18.sh "${SEED}" "${GPU_ID}" "${NUM_WORKERS}" "${SAVE_INTERVAL}" \
+bash TP-OOD/step1_train_model/step1_train_cifar100_resnet18.sh "${SEED}" "${GPU_ID}" "${NUM_WORKERS}" "${SAVE_INTERVAL}" \
   | tee "logs/train_cifar100_r18_s${SEED}_${SLURM_JOB_ID}.log"

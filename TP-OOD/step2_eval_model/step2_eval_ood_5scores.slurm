@@ -24,5 +24,5 @@ GPU_ID=${GPU_ID:-0}
 
 cd '/home/ensta/ensta-yuheng.zhang/NECO'
 
-bash TP-OOD/step2_eval_ood_5scores.sh "${ROOT}" "${GPU_ID}" "${BATCH_SIZE}" \
+bash TP-OOD/step2_eval_model/step2_eval_ood_5scores.sh "${ROOT}" "${GPU_ID}" "${BATCH_SIZE}" \
   | tee "logs/eval5_cifar100_${SLURM_JOB_ID}.log"
