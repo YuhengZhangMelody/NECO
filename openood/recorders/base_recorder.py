@@ -14,6 +14,9 @@ class BaseRecorder:
 
         self.begin_time = time.time()
         self.output_dir = config.output_dir
+        # Save periodic checkpoints when save_all_models is enabled.
+        interval = getattr(config.recorder, 'save_interval', 1)
+        self.save_interval = max(1, int(interval))
 
     def report(self, train_metrics, val_metrics):
         print('\nEpoch {:03d} | Time {:5d}s | Train Loss {:.4f} | '
@@ -29,7 +32,8 @@ class BaseRecorder:
         except AttributeError:
             state_dict = net.state_dict()
 
-        if self.config.recorder.save_all_models:
+        if (self.config.recorder.save_all_models
+                and val_metrics['epoch_idx'] % self.save_interval == 0):
             torch.save(
                 state_dict,
                 os.path.join(
