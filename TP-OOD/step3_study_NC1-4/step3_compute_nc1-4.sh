@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Step 3: compute NC1-NC5 for one or multiple datasets.
+# Step 3: compute NC1-NC4 for one or multiple datasets.
 #
 # Usage:
 #   bash TP-OOD/step3_study_NC1-4/step3_compute_nc1-4.sh \
@@ -36,7 +36,8 @@ for dataset in "${DATASET_ARR[@]}"; do
   [ -z "${dataset}" ] && continue
 
   ckpt_root="${CKPT_ROOT_TEMPLATE//\{dataset\}/${dataset}}"
-  output_csv="${ckpt_root}/nc1-5_by_seed_epoch.csv"
+  output_base="${ckpt_root}/nc1-4_by_ood"
+  output_csv="${output_base}/nc1-4_${OOD_SPLIT}_${OOD_DATASET}_by_seed_epoch.csv"
 
   echo "[step3] dataset=${dataset} ckpt_root=${ckpt_root}"
 

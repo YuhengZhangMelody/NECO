@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=openood_nc1-5_multi
+#SBATCH --job-name=openood_nc1-4_multi
 #SBATCH --partition=ENSTA-h100
 #SBATCH --gpus=1
 #SBATCH --cpus-per-task=8
@@ -30,4 +30,4 @@ cd '/home/ensta/ensta-yuheng.zhang/NECO'
 
 bash TP-OOD/step3_study_NC1-4/step3_compute_nc1-4.sh \
   "${DATASETS}" "${SEED_DIRS}" "${EPOCHS}" "${DEVICE}" "${NUM_WORKERS}" "${BATCH_SIZE}" "${OOD_SPLIT}" "${OOD_DATASET}" \
-  | tee "logs/step3_nc1-5_${SLURM_JOB_ID}.log"
+  | tee "logs/step3_nc1-4_${SLURM_JOB_ID}.log"

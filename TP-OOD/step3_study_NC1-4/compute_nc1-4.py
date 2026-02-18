@@ -30,7 +30,7 @@ class CheckpointItem:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description='Compute NC1-NC5 over checkpoint trajectory on ID train split.')
+        description='Compute NC1-NC4 over checkpoint trajectory on ID train split.')
     parser.add_argument('--dataset', type=str, default='cifar100')
     parser.add_argument('--ckpt-root', type=str,
                         default='results/cifar100_resnet18_32x32_base_e100_lr0.1_default',
@@ -46,9 +46,6 @@ def parse_args() -> argparse.Namespace:
                         choices=['val', 'nearood', 'farood'])
     parser.add_argument('--ood-dataset', type=str, default='all',
                         help='OOD dataset under split (e.g. cifar10,tin,mnist,svhn,texture,places365), or all.')
-    parser.add_argument('--skip-nc5', action='store_true',
-                        help='Skip NC5 computation and only output NC1-NC4.')
-
     parser.add_argument('--dataset-config', type=str, default='',
                         help='Override dataset yaml path. Default: configs/datasets/{dataset}/{dataset}.yml')
     parser.add_argument('--ood-config', type=str, default='',
@@ -62,11 +59,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument('--batch-size', type=int, default=128)
     parser.add_argument('--max-samples', type=int, default=0,
                         help='Debug option. 0 means full split.')
-    parser.add_argument('--max-ood-samples', type=int, default=0,
-                        help='Debug option for NC5. 0 means full OOD split.')
     parser.add_argument('--eps', type=float, default=1e-12)
     parser.add_argument('--output-csv', type=str,
-                        default='TP-OOD/step3_study_NC1-4/outputs/nc1-5_by_seed_epoch.csv')
+                        default='results/cifar100_resnet18_32x32_base_e100_lr0.1_default/nc1-4_by_ood/nc1-4_farood_all_by_seed_epoch.csv')
     return parser.parse_args()
 
 
@@ -340,38 +335,6 @@ def compute_nc1234(net, loader, device: torch.device, num_classes: int, max_samp
     }, means_valid
 
 
-@torch.no_grad()
-def ood_mean(net, loader, device: torch.device, max_samples: int):
-    feat_sum = None
-    total = 0
-
-    for batch in tqdm(loader, desc='OOD mean', leave=False):
-        data = batch['data'].to(device, non_blocking=True)
-        _, feat = net(data, return_feature=True)
-        feat = feat.detach().cpu().double()
-
-        if feat_sum is None:
-            feat_sum = torch.zeros(feat.shape[1], dtype=torch.float64)
-
-        feat_sum += feat.sum(dim=0)
-        total += feat.shape[0]
-
-        if max_samples > 0 and total >= max_samples:
-            break
-
-    if total == 0:
-        raise ValueError('No OOD samples collected for NC5 computation.')
-    return feat_sum / float(total), total
-
-
-def compute_nc5(id_means: torch.Tensor, ood_mean_vec: torch.Tensor, eps: float):
-    ood_norm = torch.linalg.norm(ood_mean_vec).clamp_min(eps)
-    id_norms = torch.linalg.norm(id_means, dim=1).clamp_min(eps)
-    dots = id_means @ ood_mean_vec
-    cos_abs = torch.abs(dots / (id_norms * ood_norm))
-    return cos_abs.mean().item(), cos_abs.std(unbiased=False).item()
-
-
 def main():
     args = parse_args()
 
@@ -384,7 +347,7 @@ def main():
         raise FileNotFoundError(f'Dataset config not found: {dataset_cfg}')
     if not network_cfg.exists():
         raise FileNotFoundError(f'Network config not found: {network_cfg}')
-    if (not args.skip_nc5) and (not ood_cfg.exists()):
+    if not ood_cfg.exists():
         raise FileNotFoundError(f'OOD config not found: {ood_cfg}')
 
     if args.seed_dirs.strip():
@@ -401,11 +364,9 @@ def main():
     id_loader, id_cfg = build_id_loader(dataset_cfg, network_cfg, args.num_workers, args.batch_size)
     num_classes = int(id_cfg.dataset.num_classes)
 
-    ood_loader_map = {}
-    if not args.skip_nc5:
-        _, ood_loader_dict, _ = build_ood_loaders(dataset_cfg, ood_cfg, network_cfg,
-                                                  args.num_workers, args.batch_size)
-        ood_loader_map = select_ood_loaders(ood_loader_dict, args.ood_split, args.ood_dataset)
+    _, ood_loader_dict, _ = build_ood_loaders(dataset_cfg, ood_cfg, network_cfg,
+                                              args.num_workers, args.batch_size)
+    ood_loader_map = select_ood_loaders(ood_loader_dict, args.ood_split, args.ood_dataset)
 
     rows = []
     for seed_dir in seed_dirs:
@@ -422,7 +383,7 @@ def main():
                 'epoch_num': item.epoch_num,
                 'checkpoint': item.ckpt_name,
                 'checkpoint_path': str(item.ckpt_path),
-                'ood_split': args.ood_split if not args.skip_nc5 else 'none',
+                'ood_split': args.ood_split,
             }
 
             if not item.ckpt_path.exists():
@@ -432,7 +393,6 @@ def main():
                     'status': 'missing',
                     'num_classes_used': None,
                     'num_samples': None,
-                    'num_ood_samples': None,
                     'tr_sigma_w': None,
                     'tr_sigma_b': None,
                     'within_class_variance': None,
@@ -443,8 +403,6 @@ def main():
                     'nc2_etf_fro': None,
                     'nc3': None,
                     'nc4': None,
-                    'nc5': None,
-                    'nc5_std': None,
                 })
                 rows.append(row)
                 print(f'[missing] {item.ckpt_path}')
@@ -453,41 +411,20 @@ def main():
             print(f'[eval] dataset={args.dataset} ckpt={item.ckpt_path}')
             net = load_net(item.ckpt_path, id_cfg.network, device)
 
-            nc1234, id_means = compute_nc1234(
+            nc1234, _ = compute_nc1234(
                 net, id_loader, device, num_classes, args.max_samples, args.eps)
 
-            if args.skip_nc5:
-                row = dict(base_row)
-                row.update(nc1234)
-                row.update({
-                    'ood_dataset': 'none',
-                    'num_ood_samples': None,
-                    'nc5': None,
-                    'nc5_std': None,
-                    'status': 'ok',
-                })
-                rows.append(row)
-                continue
-
-            for ood_name, ood_loader in ood_loader_map.items():
+            for ood_name in ood_loader_map.keys():
                 row = dict(base_row)
                 row['ood_dataset'] = ood_name
                 try:
-                    ood_mu, ood_n = ood_mean(net, ood_loader, device, args.max_ood_samples)
-                    nc5, nc5_std = compute_nc5(id_means, ood_mu, args.eps)
                     row.update(nc1234)
                     row.update({
-                        'num_ood_samples': int(ood_n),
-                        'nc5': float(nc5),
-                        'nc5_std': float(nc5_std),
                         'status': 'ok',
                     })
                 except Exception as e:
                     row.update(nc1234)
                     row.update({
-                        'num_ood_samples': None,
-                        'nc5': None,
-                        'nc5_std': None,
                         'status': f'ood_error:{type(e).__name__}',
                         'error': str(e),
                     })
@@ -497,11 +434,11 @@ def main():
     df = df.sort_values(['dataset', 'seed_dir', 'epoch_num', 'ood_dataset']).reset_index(drop=True)
     df.to_csv(out_csv, index=False)
 
-    print('\nSaved NC1-NC5 table:')
+    print('\nSaved NC1-NC4 table:')
     print(out_csv)
     show_cols = [
         'dataset', 'seed_dir', 'epoch', 'ood_dataset', 'status',
-        'nc1', 'nc2', 'nc3', 'nc4', 'nc5'
+        'nc1', 'nc2', 'nc3', 'nc4'
     ]
     print(df[show_cols].tail(30).to_string(index=False))
 

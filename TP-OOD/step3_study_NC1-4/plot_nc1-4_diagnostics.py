@@ -11,9 +11,9 @@ ROOT_DIR = Path(__file__).resolve().parents[2]
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description='Plot NC1-NC5 curves directly from precomputed CSV.')
+        description='Plot NC1-NC4 curves directly from precomputed CSV.')
     parser.add_argument('--csv-path', type=str,
-                        default='results/cifar100_resnet18_32x32_base_e100_lr0.1_default/nc1-5_by_seed_epoch.csv')
+                        default='results/cifar100_resnet18_32x32_base_e100_lr0.1_default/nc1-4_by_ood/nc1-4_farood_all_by_seed_epoch.csv')
     parser.add_argument('--datasets', type=str, default='',
                         help='Optional comma-separated datasets, e.g. cifar100,cifar10')
     parser.add_argument('--seed-dirs', type=str, default='',
@@ -55,30 +55,14 @@ def plot_curve(df_agg: pd.DataFrame, metric: str, out_path: Path, title: str):
     plt.close()
 
 
-def plot_combined_nc12345(df_agg: pd.DataFrame, out_path: Path, title: str):
+def plot_combined_nc1234(df_agg: pd.DataFrame, out_path: Path, title: str):
     plt.figure(figsize=(9.2, 5.4))
-    for metric in ['nc1', 'nc2', 'nc3', 'nc4', 'nc5']:
+    for metric in ['nc1', 'nc2', 'nc3', 'nc4']:
         if f'{metric}_mean' in df_agg.columns and df_agg[f'{metric}_mean'].notna().any():
             plt.plot(df_agg['epoch_num'], df_agg[f'{metric}_mean'], marker='o', linewidth=2, label=metric.upper())
 
     plt.xlabel('Epoch')
     plt.ylabel('Metric Value')
-    plt.title(title)
-    plt.grid(True, alpha=0.3)
-    plt.legend()
-    plt.tight_layout()
-    plt.savefig(out_path, dpi=200)
-    plt.close()
-
-
-def plot_nc5_by_ood(df: pd.DataFrame, out_path: Path, title: str):
-    plt.figure(figsize=(9.2, 5.4))
-    for ood_name, sub in df.groupby('ood_dataset'):
-        agg = mean_std_epoch(sub, ['nc5'])
-        plt.plot(agg['epoch_num'], agg['nc5_mean'], marker='o', linewidth=2, label=str(ood_name))
-
-    plt.xlabel('Epoch')
-    plt.ylabel('NC5')
     plt.title(title)
     plt.grid(True, alpha=0.3)
     plt.legend()
@@ -153,7 +137,7 @@ def main():
     if len(df) == 0:
         raise ValueError('No rows left after filtering. Check dataset/seed/epoch/status filters.')
 
-    all_filtered = out_dir / 'nc1-5_filtered_rows.csv'
+    all_filtered = out_dir / 'nc1-4_filtered_rows.csv'
     df.sort_values(['dataset', 'ood_dataset', 'seed_dir', 'epoch_num']).to_csv(all_filtered, index=False)
 
     metrics_main = ['nc1', 'nc2', 'nc3', 'nc4']
@@ -171,38 +155,19 @@ def main():
         dedup_cols = ['dataset', 'seed_dir', 'epoch_num']
         dedup_df = ds_df.sort_values(dedup_cols).drop_duplicates(subset=dedup_cols, keep='first').copy()
 
-        # Only include NC5 in this aggregate when a single OOD dataset is present.
-        if 'nc5' in ds_df.columns:
-            ood_names = set(ds_df['ood_dataset'].astype(str).tolist()) - {'none'}
-            if len(ood_names) == 1:
-                metrics_main_with_nc5 = metrics_main + ['nc5']
-            else:
-                metrics_main_with_nc5 = list(metrics_main)
-        else:
-            metrics_main_with_nc5 = list(metrics_main)
+        agg = mean_std_epoch(dedup_df, metrics_main + diag_metrics)
+        agg.to_csv(ds_out / 'nc1-4_aggregate_by_epoch.csv', index=False)
 
-        agg = mean_std_epoch(dedup_df, metrics_main_with_nc5 + diag_metrics)
-        agg.to_csv(ds_out / 'nc1-5_aggregate_by_epoch.csv', index=False)
-
-        for metric in metrics_main_with_nc5:
+        for metric in metrics_main:
             plot_curve(agg, metric, ds_out / f'{metric}_vs_epoch.png',
                        f'{dataset_name}: {metric.upper()} vs Epoch')
 
-        plot_combined_nc12345(agg, ds_out / 'nc1-5_vs_epoch_combined.png',
-                              f'{dataset_name}: NC1-NC5 vs Epoch (Mean Across Seeds)')
+        plot_combined_nc1234(agg, ds_out / 'nc1-4_vs_epoch_combined.png',
+                             f'{dataset_name}: NC1-NC4 vs Epoch (Mean Across Seeds)')
 
         if len(diag_metrics) == 3:
             plot_diagnostics(agg, ds_out / 'nc_diagnostics_triplet.png',
                              f'{dataset_name}: Neural Collapse Diagnostics')
-
-        if 'nc5' in ds_df.columns and 'ood_dataset' in ds_df.columns:
-            nc5_df = ds_df[ds_df['ood_dataset'].astype(str) != 'none'].copy()
-            if args.ood_datasets.strip() != 'all':
-                keep_ood = {x.strip() for x in args.ood_datasets.split(',') if x.strip()}
-                nc5_df = nc5_df[nc5_df['ood_dataset'].astype(str).isin(keep_ood)].copy()
-            if len(nc5_df) > 0:
-                plot_nc5_by_ood(nc5_df, ds_out / 'nc5_by_ood_vs_epoch.png',
-                                f'{dataset_name}: NC5 by OOD Dataset')
 
     print(f'Input CSV: {csv_path}')
     print(f'Filtered rows: {all_filtered}')
