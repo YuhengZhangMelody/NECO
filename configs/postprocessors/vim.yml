@@ -4,4 +4,4 @@ postprocessor:
   postprocessor_args:
     dim: 256
   postprocessor_sweep:
-    dim_list: [256, 1000]
+    dim_list: [128, 256, 384]
