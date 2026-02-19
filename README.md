@@ -1,6 +1,8 @@
 # TP-OOD (OpenOOD) — Our Implementation README
 
-This repository is based on **OpenOOD**. Our team code is mainly located under:
+This repository is based on **OpenOOD**. 
+
+You can find our report "Report-Yuheng_ZHANG_and_Qizheng_WANG.pdf" directly.Our team code is mainly located under:
 
 - `TP-OOD/` (scripts + analysis code calling OpenOOD)
 - `openood/postprocessors/neco_postprocessor.py` (our NECO method integration)
