@@ -1,0 +1,8 @@
+checkpoint: /home/ensta/ensta-yuheng.zhang/NECO/results/cifar100_resnet18_32x32_base_e100_lr0.1_default/s0/model_epoch100.ckpt
+id_split: test
+ood_split: farood
+ood_dataset: all
+id_samples: 50000
+ood_samples: 135445
+pc1_explained_variance_ratio: 0.041079
+pc2_explained_variance_ratio: 0.038371

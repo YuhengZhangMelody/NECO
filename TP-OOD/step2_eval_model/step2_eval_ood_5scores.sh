@@ -22,7 +22,7 @@ cd "${PROJECT_ROOT}"
 export PYTHONPATH="${PROJECT_ROOT}:${PYTHONPATH:-}"
 export CUDA_VISIBLE_DEVICES="${GPU_ID}"
 
-POSTPROCESSORS=(mds ebo vim)
+POSTPROCESSORS=(vim)
 
 for PP in "${POSTPROCESSORS[@]}"; do
   echo "==== Evaluating postprocessor: ${PP} ===="

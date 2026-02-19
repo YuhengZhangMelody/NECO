@@ -28,6 +28,6 @@ dataset:
   test:
     dataset_class: ImglistDataset
     data_dir: ./data/images_classic/
-    imglist_pth: ./data/benchmark_imglist/cifar100/test_cifar100.txt
+    imglist_pth: ./data/benchmark_imglist/cifar100/train_cifar100.txt
     batch_size: 200
     shuffle: False

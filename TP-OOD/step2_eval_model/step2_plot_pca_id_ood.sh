@@ -5,13 +5,13 @@ set -euo pipefail
 #
 # Usage:
 #   bash TP-OOD/step2_eval_model/step2_plot_pca_id_ood.sh \
-#     [CKPT_PATH] [GPU_ID] [BATCH_SIZE] [ID_SPLIT] [OOD_SPLIT] [OOD_DATASET] [OUTPUT_DIR]
+#     [CKPT_PATH] [GPU_ID] [BATCH_SIZE] [ID_SPLIT] [OOD_SPLIT] [OOD_DATASET] [OUTPUT_DIR] [PLOT_MAX_ID_POINTS]
 #
 # Example:
 #   bash TP-OOD/step2_eval_model/step2_plot_pca_id_ood.sh \
 #     results/cifar100_resnet18_32x32_base_e100_lr0.1_default/s0/model_epoch100.ckpt \
 #     0 200 test farood all \
-#     results/cifar100_resnet18_32x32_base_e100_lr0.1_default/pca
+#     results/cifar100_resnet18_32x32_base_e100_lr0.1_default/pca 5000
 
 CKPT_PATH="${1:-results/cifar100_resnet18_32x32_base_e100_lr0.1_default/s0/model_epoch100.ckpt}"
 GPU_ID="${2:-0}"
@@ -20,6 +20,8 @@ ID_SPLIT="${4:-test}"
 OOD_SPLIT="${5:-farood}"
 OOD_DATASET="${6:-all}"
 OUTPUT_DIR="${7:-results/cifar100_resnet18_32x32_base_e100_lr0.1_default/pca}"
+PLOT_MAX_ID_POINTS="${8:-5000}"
+PLOT_MAX_OOD_POINTS="${PLOT_MAX_OOD_POINTS:-500}"
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd -- "${SCRIPT_DIR}/../.." && pwd)"
@@ -37,6 +39,8 @@ python TP-OOD/step2_eval_model/plot_pca_id_ood.py \
   --device cuda \
   --num-workers 8 \
   --batch-size "${BATCH_SIZE}" \
+  --plot-max-id-points "${PLOT_MAX_ID_POINTS}" \
+  --plot-max-ood-points "${PLOT_MAX_OOD_POINTS}"\
   --output-dir "${OUTPUT_DIR}"
 
 echo "PCA plotting finished."
