@@ -72,6 +72,26 @@ def make_combined_plot(df_agg: pd.DataFrame, out_path: Path):
     plt.close()
 
 
+def make_combined_diagnostic_plot(df_agg: pd.DataFrame, out_path: Path):
+    plt.figure(figsize=(9, 5.5))
+    x = df_agg['epoch_num'].to_numpy()
+    for metric, label in [
+            ('class_mean_distance', 'Class Mean Distance'),
+            ('tr_sigma_w', 'Within-Class Variance'),
+            ('w_mu_cos_mean', 'Cos(W, Mean)')]:
+        y = df_agg[f'{metric}_mean'].to_numpy()
+        plt.plot(x, y, marker='o', linewidth=2, label=label)
+
+    plt.xlabel('Epoch')
+    plt.ylabel('Metric Value')
+    plt.title('NC Diagnostics vs Epoch (Mean Across Seeds)')
+    plt.grid(True, alpha=0.3)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(out_path, dpi=200)
+    plt.close()
+
+
 def main():
     args = parse_args()
 
@@ -84,7 +104,11 @@ def main():
 
     df = pd.read_csv(csv_path)
 
-    required_cols = ['seed_dir', 'epoch', 'epoch_num', 'status', 'nc1', 'nc2', 'nc3', 'nc4']
+    required_cols = [
+        'seed_dir', 'epoch', 'epoch_num', 'status',
+        'nc1', 'nc2', 'nc3', 'nc4',
+        'class_mean_distance', 'tr_sigma_w', 'w_mu_cos_mean'
+    ]
     missing_cols = [c for c in required_cols if c not in df.columns]
     if missing_cols:
         raise ValueError(f'CSV missing required columns: {missing_cols}')
@@ -126,6 +150,12 @@ def main():
             'nc3_std_across_seed': sub['nc3'].std(ddof=0),
             'nc4_mean': sub['nc4'].mean(),
             'nc4_std_across_seed': sub['nc4'].std(ddof=0),
+            'class_mean_distance_mean': sub['class_mean_distance'].mean(),
+            'class_mean_distance_std_across_seed': sub['class_mean_distance'].std(ddof=0),
+            'tr_sigma_w_mean': sub['tr_sigma_w'].mean(),
+            'tr_sigma_w_std_across_seed': sub['tr_sigma_w'].std(ddof=0),
+            'w_mu_cos_mean_mean': sub['w_mu_cos_mean'].mean(),
+            'w_mu_cos_mean_std_across_seed': sub['w_mu_cos_mean'].std(ddof=0),
         })
 
     df_agg = pd.DataFrame(rows).sort_values('epoch_num').reset_index(drop=True)
@@ -137,9 +167,17 @@ def main():
     make_curve_plot(df_agg, 'nc2', out_dir / 'nc2_vs_epoch.png')
     make_curve_plot(df_agg, 'nc3', out_dir / 'nc3_vs_epoch.png')
     make_curve_plot(df_agg, 'nc4', out_dir / 'nc4_vs_epoch.png')
+    make_curve_plot(df_agg, 'class_mean_distance',
+                    out_dir / 'class_mean_distance_vs_epoch.png')
+    make_curve_plot(df_agg, 'tr_sigma_w',
+                    out_dir / 'within_class_variance_vs_epoch.png')
+    make_curve_plot(df_agg, 'w_mu_cos_mean',
+                    out_dir / 'w_mu_cos_mean_vs_epoch.png')
 
     # Combined figure.
     make_combined_plot(df_agg, out_dir / 'nc1-4_vs_epoch_combined.png')
+    make_combined_diagnostic_plot(
+        df_agg, out_dir / 'nc_diagnostics_vs_epoch_combined.png')
 
     print(f'Input CSV: {csv_path}')
     print(f'Filtered rows: {filtered_csv}')
