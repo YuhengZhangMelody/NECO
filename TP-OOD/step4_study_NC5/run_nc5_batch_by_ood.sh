@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Batch NC5 compute+plot for each OOD dataset.
+# Batch NC5 compute+plot for:
+# 1) each OOD dataset
+# 2) split-level aggregate (nearood/all and farood/all)
 # Usage:
 #   bash TP-OOD/step4_study_NC5/run_nc5_batch_by_ood.sh [SEED_DIRS] [EPOCHS] [DEVICE] [NUM_WORKERS] [BATCH_SIZE]
 # Example:
@@ -24,6 +26,11 @@ mkdir -p "${OUT_ROOT}"
 
 # split:dataset
 TARGETS=(
+  # split-level aggregate over all datasets in the split
+  "nearood:all"
+  "farood:all"
+
+  # per-dataset runs
   "nearood:cifar10"
   "nearood:tin"
   "farood:mnist"
