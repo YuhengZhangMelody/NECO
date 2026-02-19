@@ -150,6 +150,16 @@ def coherence(v: torch.Tensor) -> float:
     return (torch.linalg.norm(g, ord=1).item()) / (c * (c - 1))
 
 
+def mean_pairwise_distance(x: torch.Tensor) -> float:
+    # x: [K, d]
+    k = x.shape[0]
+    if k <= 1:
+        return float('nan')
+    d = torch.cdist(x, x, p=2)
+    tri = torch.triu_indices(k, k, offset=1)
+    return d[tri[0], tri[1]].mean().item()
+
+
 @torch.no_grad()
 def compute_nc1234(net, loader, device: torch.device, max_samples: int, eps: float):
     num_classes = 100
@@ -240,6 +250,13 @@ def compute_nc1234(net, loader, device: torch.device, max_samples: int, eps: flo
     normalized_w = w_t / w_t.norm(p='fro').clamp_min(eps)
     nc3 = torch.linalg.norm(normalized_w - normalized_m, ord='fro').pow(2).item()
 
+    # Class-wise cosine alignment between classifier weights and centered class means.
+    w_row = w_valid
+    m_row = centered
+    cos = (w_row * m_row).sum(dim=1) / (
+        w_row.norm(dim=1).clamp_min(eps) * m_row.norm(dim=1).clamp_min(eps))
+    w_mu_cos_mean = cos.mean().item()
+
     # NC4 aligned with neco-mastery/NC_metrics.py:
     # mismatch rate between NCC prediction and network prediction.
     mismatch_count = 0
@@ -271,6 +288,8 @@ def compute_nc1234(net, loader, device: torch.device, max_samples: int, eps: flo
         'num_samples': n_total,
         'tr_sigma_w': float(torch.trace(sigma_w).item()),
         'tr_sigma_b': float(torch.trace(sigma_b).item()),
+        'class_mean_distance': float(mean_pairwise_distance(means_valid)),
+        'w_mu_cos_mean': float(w_mu_cos_mean),
         'nc1': float(nc1),
         'nc2': float(nc2),
         'nc2_etf_fro': float(nc2_etf_fro),
@@ -321,6 +340,8 @@ def main():
                     'num_samples': None,
                     'tr_sigma_w': None,
                     'tr_sigma_b': None,
+                    'class_mean_distance': None,
+                    'w_mu_cos_mean': None,
                     'nc1': None,
                     'nc2': None,
                     'nc2_etf_fro': None,
@@ -343,7 +364,8 @@ def main():
 
     print('\nSaved NC1-NC4 table:')
     print(out_csv)
-    print(df[['seed_dir', 'epoch', 'status', 'nc1', 'nc2', 'nc2_etf_fro', 'nc3', 'nc4']].tail(20).to_string(index=False))
+    print(df[['seed_dir', 'epoch', 'status', 'class_mean_distance', 'w_mu_cos_mean',
+              'nc1', 'nc2', 'nc2_etf_fro', 'nc3', 'nc4']].tail(20).to_string(index=False))
 
 
 if __name__ == '__main__':
