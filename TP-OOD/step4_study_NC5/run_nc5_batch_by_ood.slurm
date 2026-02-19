@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=openood_c100_nc5batch
-#SBATCH --partition=ENSTA-h100
+#SBATCH --partition=ENSTA-l40s
 #SBATCH --gpus=1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=32G
