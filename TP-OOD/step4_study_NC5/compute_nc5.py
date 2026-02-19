@@ -108,7 +108,7 @@ def build_loaders(num_workers: int, batch_size: int):
     config.save_output = False
     config.merge_option = 'merge'
 
-    config.dataset.train.batch_size = batch_size
+    config.dataset.test.batch_size = batch_size
     config.ood_dataset.batch_size = batch_size
 
     id_loader_dict = get_dataloader(config)
@@ -248,7 +248,7 @@ def main():
             net = load_net(item.ckpt_path, device)
 
             id_means, id_counts = class_means_id_train(
-                net, id_loader_dict['train'], device, args.max_id_samples)
+                net, id_loader_dict['test'], device, args.max_id_samples)
             ood_mu, ood_n = ood_mean(net, selected_ood, device, args.max_ood_samples)
 
             nc5, nc5_std, _ = compute_nc5(id_means, ood_mu, args.eps)

@@ -82,9 +82,9 @@ def build_loader(num_workers: int, batch_size: int):
     config.num_workers = num_workers
     config.save_output = False
     config.merge_option = 'merge'
-    config.dataset.train.batch_size = batch_size
+    config.dataset.test.batch_size = batch_size
     loader_dict = get_dataloader(config)
-    return loader_dict['train']
+    return loader_dict['test']
 
 
 def strip_module_prefix(state_dict):
