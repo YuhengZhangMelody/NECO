@@ -1,0 +1,11 @@
+seed,seed_dir,epoch,epoch_num,checkpoint,checkpoint_path,ood_split,ood_dataset,status,num_id_classes,num_id_samples,num_ood_samples,nc5,nc5_std
+0,s0,10,10,model_epoch10.ckpt,/home/ensta/ensta-yuheng.zhang/NECO/results/cifar100_resnet18_32x32_base_e100_lr0.1_default/s0/model_epoch10.ckpt,nearood,all,ok,100.0,50000.0,16526.0,0.75038284938508,0.0941750388564705
+0,s0,20,20,model_epoch20.ckpt,/home/ensta/ensta-yuheng.zhang/NECO/results/cifar100_resnet18_32x32_base_e100_lr0.1_default/s0/model_epoch20.ckpt,nearood,all,ok,100.0,50000.0,16526.0,0.7187307503884871,0.0881247950222781
+0,s0,30,30,model_epoch30.ckpt,/home/ensta/ensta-yuheng.zhang/NECO/results/cifar100_resnet18_32x32_base_e100_lr0.1_default/s0/model_epoch30.ckpt,nearood,all,ok,100.0,50000.0,16526.0,0.69015496250159,0.0901808244157945
+0,s0,40,40,model_epoch40.ckpt,/home/ensta/ensta-yuheng.zhang/NECO/results/cifar100_resnet18_32x32_base_e100_lr0.1_default/s0/model_epoch40.ckpt,nearood,all,ok,100.0,50000.0,16526.0,0.7062020177631756,0.0857835700021107
+0,s0,50,50,model_epoch50.ckpt,/home/ensta/ensta-yuheng.zhang/NECO/results/cifar100_resnet18_32x32_base_e100_lr0.1_default/s0/model_epoch50.ckpt,nearood,all,ok,100.0,50000.0,16526.0,0.7027623712133452,0.0772253022884927
+0,s0,60,60,model_epoch60.ckpt,/home/ensta/ensta-yuheng.zhang/NECO/results/cifar100_resnet18_32x32_base_e100_lr0.1_default/s0/model_epoch60.ckpt,nearood,all,ok,100.0,50000.0,16526.0,0.7100454087826468,0.0661249541953209
+0,s0,70,70,model_epoch70.ckpt,/home/ensta/ensta-yuheng.zhang/NECO/results/cifar100_resnet18_32x32_base_e100_lr0.1_default/s0/model_epoch70.ckpt,nearood,all,ok,100.0,50000.0,16526.0,0.6858769623179285,0.0679933186307861
+0,s0,80,80,model_epoch80.ckpt,/home/ensta/ensta-yuheng.zhang/NECO/results/cifar100_resnet18_32x32_base_e100_lr0.1_default/s0/model_epoch80.ckpt,nearood,all,ok,100.0,50000.0,16526.0,0.6297302182589887,0.053395925561801
+0,s0,90,90,model_epoch90.ckpt,/home/ensta/ensta-yuheng.zhang/NECO/results/cifar100_resnet18_32x32_base_e100_lr0.1_default/s0/model_epoch90.ckpt,nearood,all,ok,100.0,50000.0,16526.0,0.6079187138060269,0.0559770996746532
+0,s0,100,100,model_epoch100.ckpt,/home/ensta/ensta-yuheng.zhang/NECO/results/cifar100_resnet18_32x32_base_e100_lr0.1_default/s0/model_epoch100.ckpt,nearood,all,ok,100.0,50000.0,16526.0,0.6055012108634183,0.0556592653595666
