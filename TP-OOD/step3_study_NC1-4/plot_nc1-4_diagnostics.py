@@ -98,7 +98,7 @@ def main():
         df = df[df['seed_dir'].astype(str).isin(keep_seeds)].copy()
 
     # Keep only numeric epochs (exclude "best" by default for curve plotting).
-    df = df[df['epoch'].astype(str).str.match(r'^\\d+$')].copy()
+    df = df[df['epoch'].astype(str).str.match(r'^\d+$')].copy()
 
     # Optional epoch filtering.
     if args.epochs.strip():
