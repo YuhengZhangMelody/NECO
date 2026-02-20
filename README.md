@@ -1,5 +1,6 @@
 # TP-OOD (OpenOOD) — Our Implementation README
 
+Author: Yuheng ZHANG, Qizheng WANG
 This repository is based on **OpenOOD**. 
 
 You can find our report **"Report-Yuheng_ZHANG_and_Qizheng_WANG.pdf"** directly. Our team code is mainly located under:
